@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mycosmo.cosmology &#8212; mycosmo  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for mycosmo.cosmology</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">G</span><span class="p">,</span> <span class="n">Mpc</span>
+
+<span class="sd">&quot;&quot;&quot;Cosmology.</span>
+
+<span class="sd">This module implements various cosmology routines.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="hubble">
+<a class="viewcode-back" href="../../mycosmo.cosmology.html#mycosmo.cosmology.hubble">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hubble</span><span class="p">(</span><span class="n">redshift</span><span class="p">,</span> <span class="n">cosmo_dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hubble Parameter.</span>
+
+<span class="sd">    Calculate the Hubble parameter at a given redshift using the cosmological parameter values provided.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    redshift : float or numpy.ndarray</span>
+<span class="sd">        Redshift(s) at which the Hubble parameter should be calculated</span>
+<span class="sd">    cosmo_dict : dict</span>
+<span class="sd">        Dictionary of cosmological constants. </span>
+
+<span class="sd">    cosmo_dict : dict</span>
+<span class="sd">        Dictionary of cosmological constants. Must contain the following keys:</span>
+
+<span class="sd">        * ``H0``: The Hubble parameter value at redshift zero.</span>
+<span class="sd">        * ``omega_m_0``: The matter density at redshift zero.</span>
+<span class="sd">        * ``omega_k_0``: The curvature density at redshift zero.</span>
+<span class="sd">        * ``omega_lambda_0``: The dark energy density at redshift zero.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float or numpy.ndarray</span>
+<span class="sd">        Value of the Hubble parameter (km/s/Mpc) at the specified redshift(s) for a given cosmology.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function implements the calculation of the Hubble parameter as follows:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        H(z) = \sqrt{H_0^2 (\Omega_{m,0}(1+z)^3 + \Omega_{k,0}(1+z)^2 +</span>
+<span class="sd">            \Omega_{\Lambda,0})}</span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from mycosmo.cosmology import hubble</span>
+<span class="sd">    &gt;&gt;&gt; cosmo_dict = {&quot;H0&quot;: 70, &quot;omega_m_0&quot;: 0.3, &quot;omega_k_0&quot;: 0.0, &quot;omega_lambda_0&quot;: 0.7}</span>
+<span class="sd">    &gt;&gt;&gt; hubble(0.0, cosmo_dict)</span>
+<span class="sd">    np.float64(70.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hubble_const</span> <span class="o">=</span> <span class="n">cosmo_dict</span><span class="p">[</span><span class="s2">&quot;H0&quot;</span><span class="p">]</span>
+    <span class="n">matter</span> <span class="o">=</span> <span class="n">cosmo_dict</span><span class="p">[</span><span class="s2">&quot;omega_m_0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">redshift</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span>
+    <span class="n">curvature</span> <span class="o">=</span> <span class="n">cosmo_dict</span><span class="p">[</span><span class="s2">&quot;omega_k_0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">redshift</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">dark_energy</span> <span class="o">=</span> <span class="n">cosmo_dict</span><span class="p">[</span><span class="s2">&quot;omega_lambda_0&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hubble_const</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">matter</span> <span class="o">+</span> <span class="n">curvature</span> <span class="o">+</span> <span class="n">dark_energy</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="critical_density">
+<a class="viewcode-back" href="../../mycosmo.cosmology.html#mycosmo.cosmology.critical_density">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">critical_density</span><span class="p">(</span><span class="n">redshift</span><span class="p">,</span> <span class="n">cosmo_dict</span><span class="p">):</span>
+    <span class="n">H_z_si</span> <span class="o">=</span> <span class="n">hubble</span><span class="p">(</span><span class="n">redshift</span><span class="p">,</span> <span class="n">cosmo_dict</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e3</span> <span class="o">/</span> <span class="n">Mpc</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">H_z_si</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">G</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">mycosmo</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Julien TANG.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
